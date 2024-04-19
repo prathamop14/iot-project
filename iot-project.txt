@@ -1,0 +1,39 @@
+#include <Servo.h>
+
+const int trigPin = 5;
+const int echoPin = 6;
+const int motorPin = 7;
+Servo myservo;
+bool objectDetected = false; // Flag variable to track object detection
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(motorPin, OUTPUT);
+  myservo.attach(motorPin);
+}
+
+void loop() {
+  long duration, distance;
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = (duration / 2) / 29.1;
+
+  if (distance < 20) { // Change this value according to your requirement for detecting distance
+    Serial.println("Object detected!");
+    myservo.write(90); // Angle at which the servo opens the lid
+    delay(1000); // Adjust the delay as needed for the lid to fully open
+    objectDetected = true; // Set flag to true when object is detected
+  } else if (objectDetected) {
+    Serial.println("No object detected."); // Print message when no object is detected for the first time after detecting an object
+    myservo.write(0); // Angle at which the servo closes the lid
+    objectDetected = false; // Reset flag
+  }
+
+  delay(100);
+}
